@@ -8,4 +8,11 @@
 ### Distortion Model
 - radial-tangential (radtan)
 ## Reference
-https://github.com/kushalvyas/CameraCalibration
+### Theory
+1. Zhang, Zhengyou. "A flexible new technique for camera calibration." IEEE Transactions on pattern analysis and machine intelligence 22.11 (2000): 1330-1334.
+2. Burger, Wilhelm. "Zhang’s camera calibration algorithm: in-depth tutorial and implementation." HGB16-05 (2016): 1-6.
+3. https://kushalvyas.github.io/calib.html
+
+### Implementation
+1. https://github.com/kushalvyas/CameraCalibration
+2. https://github.com/goldbema/CameraCalibration
