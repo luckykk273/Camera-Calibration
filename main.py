@@ -1,6 +1,4 @@
-import numpy as np
-
-from calib_utils import *
+from utils.calib_utils import *
 
 
 if __name__ == '__main__':
