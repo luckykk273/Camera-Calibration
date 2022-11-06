@@ -123,3 +123,23 @@ def jac(X, *params):
         J[2 * j, :] = [x / w, y / w, 1 / w, 0, 0, 0, -sx * x / w**2, -sx * y / w**2, -sx / w**2]
         J[2 * j + 1, :] = [0, 0, 0, x / w, y / w, 1 / w, -sy * x / w**2, -sy * y / w**2, -sy / w**2]
     return J
+
+
+def v_pq(H, p, q):
+    """
+    Given homography H, do v_p,q operation defined in eq.96 in reference [2].
+
+    :param H: homography to be operated
+    :param p: p column of homography
+    :param q: q column of homography
+    :return: a 6-dimensional vector
+    """
+    v_pq = np.array([
+        H[0, p] * H[0, q],
+        H[0, p] * H[1, q] + H[1, p] * H[0, q],
+        H[1, p] * H[1, q],
+        H[2, p] * H[0, q] + H[0, p] * H[2, q],
+        H[2, p] * H[1, q] + H[1, p] * H[2, q],
+        H[2, p] * H[2, q]
+    ])
+    return v_pq

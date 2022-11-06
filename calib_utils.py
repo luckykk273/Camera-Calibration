@@ -4,6 +4,8 @@ import numpy as np
 import os
 
 from homography_utils import get_homographies
+from intrinsics_utils import get_camera_intrinsics
+from extrinsics_utils import get_extrinsics
 
 
 def find_chessboard_corners(root_path='./chessboard_data',
@@ -83,8 +85,9 @@ def calibrate(Xs: list, Us: list):
     :return: the estimated intrinsics parameters A, k and the extrinsic transformations W = (R | t) for each view.
     """
     H_init = get_homographies(Xs, Us)
-    # A_init = get_camera_intrinsics(H_init)
-    # W_init = get_extrinsics(A_init, H_init)
+    A_init = get_camera_intrinsics(H_init)
+    W_init = get_extrinsics(A_init, H_init)
     # k_init = estimate_lens_distortion(A_init, W_init, Xs, Us)
     # A, k, W = refine_all(A_init, k_init, W_init, Xs, Us)
     # return A, k, W
+    return H_init, A_init, W_init
