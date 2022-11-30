@@ -45,6 +45,7 @@ def get_camera_intrinsics(H):
         [    0,     0,  1]
     ])
 
+    # used by method 2 and 3
     B = np.array([
         [b[0], b[1], b[3]],
         [b[1], b[2], b[4]],

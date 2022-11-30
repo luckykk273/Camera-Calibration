@@ -8,7 +8,7 @@ def make_true_rotation_matrix(R):
     :param R: initial rotation matrix
     :return: the most similar `true` rotation matrix
     """
-    u, s, vh = np.linalg.svd(R)
+    u, _, vh = np.linalg.svd(R)
     true_R = np.dot(u, vh)
     return true_R
 

@@ -58,7 +58,7 @@ def solve(M):
     :param M: matrix to be solved
     :return: homogeneous matrix
     """
-    u, s, vh = np.linalg.svd(M)
+    _, s, vh = np.linalg.svd(M)
     h = vh[np.argmin(s), :]
     return h
 
@@ -76,7 +76,7 @@ def optimize(val, jac, X, Y, h):
     :param h: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
     :return: optimized flattened homography matrix
     """
-    popt, pcov = curve_fit(f=val, xdata=X, ydata=Y, p0=h, method='lm', jac=jac)
+    popt, _ = curve_fit(f=val, xdata=X, ydata=Y, p0=h, method='lm', jac=jac)
     refined_h = popt
     return refined_h
 
