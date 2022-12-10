@@ -56,7 +56,7 @@ def refine_homography(H, X, U):
     return optimized_H
 
 
-def get_homographies(X: list, U: list):
+def get_homographies(X: np.ndarray, U: list):
     """
     Given model points and the associate sensor points in M views, get initial homographies.
 
@@ -64,15 +64,13 @@ def get_homographies(X: list, U: list):
     :param U: sensor points
     :return: a sequence of estimated homographies Hs = (H_0, H_1, ..., H_M-1), one for each of the M views.
     """
-    if len(X) != len(U):
-        raise ValueError('Length of model points and length of sensor points should be the same.')
 
     # number of views
-    M = len(X)
+    M = len(U)
     Hs = []
     for i in range(M):
-        H_init = estimate_homography(X[i], U[i])
-        H = refine_homography(H_init, X[i], U[i])
+        H_init = estimate_homography(X, U[i])
+        H = refine_homography(H_init, X, U[i])
         Hs.append(H)
     return Hs
 

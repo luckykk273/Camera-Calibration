@@ -76,7 +76,7 @@ def find_chessboard_corners(root_path='./chessboard_data',
     return model_points, sensor_points
 
 
-def calibrate(Xs: list, Us: list):
+def calibrate(X: list, Us: list):
     """
     Camera calibration algorithm by Zhang.
     All variable names follow pseudocode summarized in Section 4 in reference [2].
@@ -85,10 +85,10 @@ def calibrate(Xs: list, Us: list):
     :param Us: a sequence of views, each view is an ordered sequence of observed image points uij = (uij, vij)^T
     :return: the estimated intrinsics parameters A, k and the extrinsic transformations W = (R | t) for each view.
     """
-    H_init = get_homographies(Xs, Us)
+    H_init = get_homographies(X, Us)
     A_init = get_camera_intrinsics(H_init)
     W_init = get_extrinsics(A_init, H_init)
-    k_init = estimate_lens_distortion(A_init, W_init, Xs, Us)
+    k_init = estimate_lens_distortion(A_init, W_init, X, Us)
     # A, k, W = refine_all(A_init, k_init, W_init, Xs, Us)
     # return A, k, W
     return H_init, A_init, W_init
