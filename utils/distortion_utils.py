@@ -1,15 +1,11 @@
-from math_utils import hom, hom_inv, solve
+from .math_utils import hom, hom_inv, solve
 
 import numpy as np
 
 
 def estimate_lens_distortion(A, W, X, U):
     """
-    Estimation of the radial lens distortion parameters:
-    distorted radius: r_distort = r * [1 + D(r, k)]
-    warped projection point: x_warp = warp(x, k)
-    where D(r, k) = k0 * r^2 + k1 * r^4 
-    and warp(x, k) = x * [1 + D(||x||, k)]
+    Estimation of the radial lens distortion parameters.
 
     :param A: the estimated intrinsic parameters
     :param W: the estimated extrinsic parameters; W = (W0, W1, ..., W_M-1) with M views where Wi = (Ri | ti)

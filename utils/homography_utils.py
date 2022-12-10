@@ -1,6 +1,6 @@
 import numpy as np
 
-from math_utils import *
+from .math_utils import *
 
 
 def estimate_homography(P: np.ndarray, Q: np.ndarray):

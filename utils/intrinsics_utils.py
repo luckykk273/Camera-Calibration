@@ -1,4 +1,4 @@
-from math_utils import solve, v_pq
+from .math_utils import solve, v_pq
 import numpy as np
 
 
