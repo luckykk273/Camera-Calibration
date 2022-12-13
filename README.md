@@ -10,9 +10,9 @@ NOTE: We follow the algorithms and the notations written in chapter 4 in referen
 It doesn't optimize the code but keep the sequence the same as in reference [2].
 
 ## Support Models
-Camera Number: Monocular only
-Camera(Projection) Model: pinhole
-Distortion Model: radial distortion
+Camera Number: Monocular only  
+Camera(Projection) Model: pinhole  
+Distortion Model: radial distortion  
 
 ## Terms In Code
 In this repository, we follow the list of symbols and notation defined in table 1 in reference [2] and 
