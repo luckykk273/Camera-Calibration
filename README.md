@@ -21,6 +21,12 @@ Some other common terms refer to the same things are defined as follows:
 1. Points in 3D world coordinate: model points, target points, object points
 2. Points in 2D image(sensor) coordinate: image points, sensor points
 
+## To-do List
+1. Lint the code
+2. Add optimize function of refining all parameters
+    - Differentiate two optimization functions for homography and refinement
+3. Refactor
+
 ## Future
 Implement [LM algorithm]() from scratch.
 
