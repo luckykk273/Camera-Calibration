@@ -1,4 +1,4 @@
-from .math_utils import hom, hom_inv, solve
+from .math_utils import hom, hom_inv
 
 import numpy as np
 

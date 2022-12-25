@@ -1,4 +1,5 @@
 from scipy.optimize import curve_fit
+import cv2
 import numpy as np
 
 
@@ -143,3 +144,60 @@ def v_pq(H, p, q):
         H[2, p] * H[2, q]
     ])
     return v_pq
+
+
+def to_rodrigues_vector(R):
+    """
+    Transform a 3D rotation matrix to a Rodrigues rotation vector.
+
+    :param R: a 3D rotation matrix
+    :return: the associated Rodrigues rotation vector rho
+    """
+    p = 0.5 * np.array([
+        R[2, 1] - R[1, 2], 
+        R[0, 2] - R[2, 0], 
+        R[1, 0] - R[0, 1]
+    ])
+    c = 0.5 * (np.trace(R) - 1)
+    if np.linalg.norm(p) == 0:
+        if c == 1:
+            rho1 = np.zeros((3, ))
+        elif c == -1:
+            R_plus = R + np.identity(3)
+            # get column vector of R+ with max. norm
+            v = R_plus[:, np.argmax(np.linalg.norm(R_plus, axis=0))]
+            u = v / np.linalg.norm(v)
+            if (u[0] < 0) or (u[0] == 0 and u[1] < 0) or (u[0] == u[1] == 0 and u[2] < 0):
+                u = -u
+            rho1 = np.pi * u
+        else:
+            raise ValueError('The 3D rotation matrix transformed is invalid.')
+    else:
+        u = p / np.linalg.norm(p)
+        theta = np.arctan2(np.linalg.norm(p), c)
+        rho1 = theta * u
+
+    rho2 = cv2.Rodrigues(R)[0].reshape((3, ))
+    assert np.allclose(rho1, rho2), 'Transformation from rotation matrix to Rodrigues vector computed from scratch is different from cv2.Rodrigues.'
+    return rho1
+
+
+def to_rotation_matrix(rho):
+    """
+    Transform  a Rodrigues rotation vector to a 3D rotation matrix.
+
+    :param rho: a Rodrigues rotation vector
+    :return: the associated 3D rotation matrix R
+    """
+    theta = np.linalg.norm(rho)
+    rho_hat = rho / np.linalg.norm(rho)
+    W = np.array([
+        [0, -rho_hat[2], rho_hat[1]],
+        [rho_hat[2], 0, -rho_hat[0]],
+        [-rho_hat[1], rho_hat[0], 0]
+    ])
+    R1 = np.identity(3) + W * np.sin(theta) + np.matmul(W, W) * (1 - np.cos(theta))
+
+    R2 = cv2.Rodrigues(rho)[0]
+    assert np.allclose(R1, R2), 'Transformation from Rodrigues vector to rotation matrix computed from scratch is different from cv2.Rodrigues.'
+    return R1

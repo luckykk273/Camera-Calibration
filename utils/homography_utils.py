@@ -51,9 +51,9 @@ def refine_homography(H, X, U):
     X = X.flatten()
     Y = U.flatten()
     h = H.flatten()
-    optimized_h = optimize(val, jac, X, Y, h)
-    optimized_H = optimized_h.reshape(3, 3) / optimized_h[8]
-    return optimized_H
+    h_optimized = optimize(val, jac, X, Y, h)
+    H_optimized = h_optimized.reshape(3, 3) / h_optimized[8]
+    return H_optimized
 
 
 def get_homographies(X: np.ndarray, U: list):
