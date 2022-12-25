@@ -49,7 +49,7 @@ def estimate_lens_distortion(A: np.ndarray, W: list, X: np.ndarray, U: list):
     k2 = np.dot(vh.T, w)
 
     # method 3:
-    k3 = np.linalg.lstsq(D, d)[0]
+    k3 = np.linalg.lstsq(D, d, rcond=None)[0]
 
     # method 4:
     Q, R = np.linalg.qr(D)
