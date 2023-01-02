@@ -7,7 +7,7 @@ chessboard corners). The purpose of this repository is to know camera calibratio
 The way to find the chessboard corners is not the key part in this repository, so we utilized the function in OpenCV directly.
 
 NOTE: We follow the algorithms and the notations written in chapter 4 in reference [2].
-It doesn't optimize the code but keep the sequence the same as in reference [2].
+It doesn't optimize the code(may be slow) but keep the order the same as in reference [2].
 
 ## Support Models
 Camera Number: Monocular only  
