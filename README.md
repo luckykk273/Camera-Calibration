@@ -22,14 +22,16 @@ Some other common terms refer to the same things are defined as follows:
 2. Points in 2D image(sensor) coordinate: image points, sensor points
 
 ## Result
-| Focal Length | Principal Point | Skew | Distortion |
-| :----------: | :-------------: | :--: | :--------: |
-| (534.744914, 534.993645) | (342.223774, 232.569257) | 0.598208 | (-0.298821, 0.138997) |
+| Focal Length | Principal Point | Skew | Distortion | Reprojection Error(avg.) |
+| :----------: | :-------------: | :--: | :--------: | :----------------------: |
+| (534.744914, 534.993645) | (342.223774, 232.569257) | 0.598208 | (-0.298821, 0.138997) | 0.143098 |
 
 **NOTE: The result will a litte different because of the result of LM algorithm may be different.**
 
 ## Future
-Implement [LM algorithm]() from scratch.
+If someone wants to improve the result more, the following reference may help:  
+1. Liu, Zhen, et al. "High-accuracy calibration of low-cost camera using image disturbance factor." Optics Express 24.21 (2016): 24321-24336.
+2. Datta, Ankur, Jun-Sik Kim, and Takeo Kanade. "Accurate camera calibration using iterative refinement of control points." 2009 IEEE 12th International Conference on Computer Vision Workshops, ICCV Workshops. IEEE, 2009.
 
 ## Reference
 ### Theory
