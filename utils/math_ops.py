@@ -173,3 +173,16 @@ def project(A, W, X, k=None):
         x = warp(x, k)
     u = np.dot(A[:2, :], hom(x))
     return u
+
+
+def reprojection_error(X, U, A, k, W):
+    M = len(W)
+    N = X.shape[0]
+    X = np.hstack((X, np.zeros((N, 1))))
+    reproj_err = 0
+    for i in range(M):
+        for j in range(N):
+            x, y = U[i][j, :]
+            x_proj, y_proj = project(A, W[i], X[j, :], k)
+            reproj_err += np.sqrt((x - x_proj)**2 + (y - y_proj)**2)
+    return reproj_err / (M * N)
