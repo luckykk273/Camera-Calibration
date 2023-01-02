@@ -21,11 +21,12 @@ Some other common terms refer to the same things are defined as follows:
 1. Points in 3D world coordinate: model points, target points, object points
 2. Points in 2D image(sensor) coordinate: image points, sensor points
 
-## To-do List
-1. Lint the code
-2. Add optimize function of refining all parameters
-    - Differentiate two optimization functions for homography and refinement
-3. Refactor
+## Result
+| Focal Length | Principal Point | Skew | Distortion |
+| :----------: | :-------------: | :--: | :--------: |
+| (534.744914, 534.993645) | (342.223774, 232.569257) | 0.598208 | (-0.298821, 0.138997) |
+
+**NOTE: The result will a litte different because of the result of LM algorithm may be different.**
 
 ## Future
 Implement [LM algorithm]() from scratch.
