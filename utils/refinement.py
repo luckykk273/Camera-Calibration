@@ -1,5 +1,8 @@
-from .math_utils import to_rodrigues_vector, to_rotation_matrix, optimize, hom, hom_inv
+from scipy.optimize import curve_fit
 import numpy as np
+
+from .math_ops import to_rodrigues_vector, to_rotation_matrix, project
+
 
 def compose_parameter_vector(A, k, W):
     """
@@ -46,38 +49,6 @@ def decompose_parameter_vector(P):
         W = np.hstack((R, t))
         Ws.append(W)
     return A, k, Ws
-
-
-def warp(x, k):
-    """
-    Map an undistored 2D coordinate to a distorted 2D coordinate.
-
-    :param x: the undistorted points on the normalized coordinates
-    :param k: lens distortion coefficients
-    :return: the distorted points on the normalized coordinates
-    """
-    r = np.linalg.norm(x)
-    D = k[0] * r**2 + k[1] * r**4
-    return x * (1 + D)
-
-
-def project(A, W, X, k=None):
-    """
-    Projection function which maps the 3D point X = (X, Y, Z)(defined in world coordinates) to the 2D sensor point u = (u, v), 
-    using the intrinsic parameters A, the extrinsic parameters W and the lens distortion k(optional).
-    This function is defined as the equation (24) in the reference [2].
-
-    :param A: camera intrinsics
-    :param W: extrinsic view parameters
-    :param X: the target model points
-    :param k: lens distortion coefficients(optional)
-    :return: the projected 2D sensor point u = (u, v)
-    """
-    x = hom_inv(np.dot(W, hom(X)))
-    if k is not None:
-        x = warp(x, k)
-    u = np.dot(A[:2, :], hom(x))
-    return u
 
 
 def val(X, *params):
@@ -136,6 +107,6 @@ def refine_all(A, k, W, X, U):
     X = np.hstack((X, np.zeros((N, 1))))
     X = X.flatten()
     Y = np.array([u.flatten() for u in U]).flatten()
-    P_optimized = optimize(val, X, Y, P_init)
+    P_optimized, _ = curve_fit(f=val, xdata=X, ydata=Y, p0=P_init, jac=None)
 
     return decompose_parameter_vector(P_optimized)

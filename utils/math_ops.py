@@ -1,7 +1,6 @@
-from scipy.optimize import curve_fit
 import cv2
 import numpy as np
-import time
+
 
 def hom(x):
     """
@@ -65,70 +64,6 @@ def solve(M):
     _, s, vh = np.linalg.svd(M)
     h = vh[np.argmin(s), :]
     return h
-
-
-def optimize(val, X, Y, h, jac=None):
-    """
-    Use non-linear least squares with LM algorithm to fit a function, val, to data.
-    Assumes Y = f(X, *params) + eps.
-
-    :param val: fitting function to data
-    :param X: model points X: (X_0, Y_0, X_1, Y_1, ..., X_N-1, Y_N-1)
-    :param Y: sensor points: (u_0, v_0, u_1, v_1, ..., u_N-1, v_N-1)
-    :param h: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
-    :param jac: Jacobian function which is dY/dX
-    :return: optimized flattened homography matrix
-    """
-    start = time.time()
-    popt, _ = curve_fit(f=val, xdata=X, ydata=Y, p0=h, method='lm', jac=jac)
-    end = time.time()
-    print("Optimized all params time usage:", start - end)
-    refined_h = popt
-    return refined_h
-
-
-def val(X, *params):
-    """
-    Value function, invoked by optimize()
-
-    :param X: model points: (X_0, Y_0, X_1, Y_1, ..., X_N-1, Y_N-1)
-    :param params: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
-    :return: vector with 2N values
-    """
-    # because X has been flattened, the number of points N should be divided by 2
-    N = X.shape[0] // 2
-    Y = np.zeros((2 * N, ))
-    h = params
-    for j in range(N):
-        x, y = X[2 * j], X[2 * j + 1]
-        w = h[6] * x + h[7] * y + h[8]
-        u = (h[0] * x + h[1] * y + h[2]) / w
-        v = (h[3] * x + h[4] * y + h[5]) / w
-        Y[2 * j] = u
-        Y[2 * j + 1] = v
-    return Y
-
-
-def jac(X, *params):
-    """
-    Jacobian function, invoked by optimize()
-
-    :param X: model points: (X_0, Y_0, X_1, Y_1, ..., X_N-1, Y_N-1)
-    :param params: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
-    :return: Jacobian matrix of size 2N x 9
-    """
-    # because X has been flattened, the number of points N should be divided by 2
-    N = X.shape[0] // 2
-    J = np.zeros((2 * N, 9))
-    h = params
-    for j in range(N):
-        x, y = X[2 * j], X[2 * j + 1]
-        sx = h[0] * x + h[1] * y + h[2]
-        sy = h[3] * x + h[4] * y + h[5]
-        w = h[6] * x + h[7] * y + h[8]
-        J[2 * j, :] = [x / w, y / w, 1 / w, 0, 0, 0, -sx * x / w**2, -sx * y / w**2, -sx / w**2]
-        J[2 * j + 1, :] = [0, 0, 0, x / w, y / w, 1 / w, -sy * x / w**2, -sy * y / w**2, -sy / w**2]
-    return J
 
 
 def v_pq(H, p, q):
@@ -206,3 +141,35 @@ def to_rotation_matrix(rho):
     R2 = cv2.Rodrigues(rho)[0]
     assert np.allclose(R1, R2), 'Transformation from Rodrigues vector to rotation matrix computed from scratch is different from cv2.Rodrigues.'
     return R1
+
+
+def warp(x, k):
+    """
+    Map an undistored 2D coordinate to a distorted 2D coordinate.
+
+    :param x: the undistorted points on the normalized coordinates
+    :param k: lens distortion coefficients
+    :return: the distorted points on the normalized coordinates
+    """
+    r = np.linalg.norm(x)
+    D = k[0] * r**2 + k[1] * r**4
+    return x * (1 + D)
+
+
+def project(A, W, X, k=None):
+    """
+    Projection function which maps the 3D point X = (X, Y, Z)(defined in world coordinates) to the 2D sensor point u = (u, v), 
+    using the intrinsic parameters A, the extrinsic parameters W and the lens distortion k(optional).
+    This function is defined as the equation (24) in the reference [2].
+
+    :param A: camera intrinsics
+    :param W: extrinsic view parameters
+    :param X: the target model points
+    :param k: lens distortion coefficients(optional)
+    :return: the projected 2D sensor point u = (u, v)
+    """
+    x = hom_inv(np.dot(W, hom(X)))
+    if k is not None:
+        x = warp(x, k)
+    u = np.dot(A[:2, :], hom(x))
+    return u

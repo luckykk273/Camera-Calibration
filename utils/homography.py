@@ -1,6 +1,51 @@
+from scipy.optimize import curve_fit
 import numpy as np
 
-from .math_utils import *
+from .math_ops import get_normalization_matrix, hom, hom_inv, solve
+
+
+def val(X, *params):
+    """
+    Value function, invoked by optimize()
+
+    :param X: model points: (X_0, Y_0, X_1, Y_1, ..., X_N-1, Y_N-1)
+    :param params: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
+    :return: vector with 2N values
+    """
+    # because X has been flattened, the number of points N should be divided by 2
+    N = X.shape[0] // 2
+    Y = np.zeros((2 * N, ))
+    h = params
+    for j in range(N):
+        x, y = X[2 * j], X[2 * j + 1]
+        w = h[6] * x + h[7] * y + h[8]
+        u = (h[0] * x + h[1] * y + h[2]) / w
+        v = (h[3] * x + h[4] * y + h[5]) / w
+        Y[2 * j] = u
+        Y[2 * j + 1] = v
+    return Y
+
+
+def jac(X, *params):
+    """
+    Jacobian function, invoked by optimize()
+
+    :param X: model points: (X_0, Y_0, X_1, Y_1, ..., X_N-1, Y_N-1)
+    :param params: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
+    :return: Jacobian matrix of size 2N x 9
+    """
+    # because X has been flattened, the number of points N should be divided by 2
+    N = X.shape[0] // 2
+    J = np.zeros((2 * N, 9))
+    h = params
+    for j in range(N):
+        x, y = X[2 * j], X[2 * j + 1]
+        sx = h[0] * x + h[1] * y + h[2]
+        sy = h[3] * x + h[4] * y + h[5]
+        w = h[6] * x + h[7] * y + h[8]
+        J[2 * j, :] = [x / w, y / w, 1 / w, 0, 0, 0, -sx * x / w**2, -sx * y / w**2, -sx / w**2]
+        J[2 * j + 1, :] = [0, 0, 0, x / w, y / w, 1 / w, -sy * x / w**2, -sy * y / w**2, -sy / w**2]
+    return J
 
 
 def estimate_homography(P: np.ndarray, Q: np.ndarray):
@@ -51,7 +96,7 @@ def refine_homography(H, X, U):
     X = X.flatten()
     Y = U.flatten()
     h = H.flatten()
-    h_optimized = optimize(val, X, Y, h, jac)
+    h_optimized, _ = curve_fit(f=val, xdata=X, ydata=Y, p0=h, jac=jac)
     H_optimized = h_optimized.reshape(3, 3) / h_optimized[8]
     return H_optimized
 
