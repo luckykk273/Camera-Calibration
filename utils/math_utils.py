@@ -1,7 +1,7 @@
 from scipy.optimize import curve_fit
 import cv2
 import numpy as np
-
+import time
 
 def hom(x):
     """
@@ -18,12 +18,15 @@ def hom(x):
 def hom_inv(x):
     """
     Convert a homogeneous point x = (x_0, x_1, ..., x_n-1, 1)^T to Cartesian coordinate.
-    We use the notation hom_inv(x) = (x_0, x_1, ..., x_n-1)^T
+    We use the notation hom_inv(x) = (x_0, x_1, ..., x_n-1)^T.
+    NOTE: We should devide the last element when converting a homogeneous vector back to Cartesian coordinates 
+          assuming that the last element not equal to zero.
+          For more detail, please refer to the equation (153) in the appendix A.1 in reference [2]. 
 
     :param x: a homogeneous point
     :return: an n-dimensional Cartesian point
     """
-    return x[:-1]
+    return x[:-1] / x[-1]
 
 
 def get_normalization_matrix(X):
@@ -64,20 +67,22 @@ def solve(M):
     return h
 
 
-def optimize(val, jac, X, Y, h):
+def optimize(val, X, Y, h, jac=None):
     """
     Use non-linear least squares with LM algorithm to fit a function, val, to data.
-
     Assumes Y = f(X, *params) + eps.
 
     :param val: fitting function to data
-    :param jac: Jacobian function which is dY/dX
     :param X: model points X: (X_0, Y_0, X_1, Y_1, ..., X_N-1, Y_N-1)
     :param Y: sensor points: (u_0, v_0, u_1, v_1, ..., u_N-1, v_N-1)
     :param h: parameter vector holding 9 elements of the associated homography matrix X: (h0, h1, ..., h8)
+    :param jac: Jacobian function which is dY/dX
     :return: optimized flattened homography matrix
     """
+    start = time.time()
     popt, _ = curve_fit(f=val, xdata=X, ydata=Y, p0=h, method='lm', jac=jac)
+    end = time.time()
+    print("Optimized all params time usage:", start - end)
     refined_h = popt
     return refined_h
 
@@ -92,7 +97,7 @@ def val(X, *params):
     """
     # because X has been flattened, the number of points N should be divided by 2
     N = X.shape[0] // 2
-    Y = np.zeros(2 * N)
+    Y = np.zeros((2 * N, ))
     h = params
     for j in range(N):
         x, y = X[2 * j], X[2 * j + 1]
@@ -177,7 +182,7 @@ def to_rodrigues_vector(R):
         theta = np.arctan2(np.linalg.norm(p), c)
         rho1 = theta * u
 
-    rho2 = cv2.Rodrigues(R)[0].reshape((3, ))
+    rho2 = cv2.Rodrigues(R)[0].reshape((-1, ))
     assert np.allclose(rho1, rho2), 'Transformation from rotation matrix to Rodrigues vector computed from scratch is different from cv2.Rodrigues.'
     return rho1
 

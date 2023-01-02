@@ -91,5 +91,4 @@ def calibrate(X: list, Us: list):
     W_init = get_extrinsics(A_init, H_init)
     k_init = estimate_lens_distortion(A_init, W_init, X, Us)
     A, k, W = refine_all(A_init, k_init, W_init, X, Us)
-    # return A, k, W
-    return H_init, A_init, W_init
+    return A, k, W

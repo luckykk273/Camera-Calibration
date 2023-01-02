@@ -51,7 +51,7 @@ def refine_homography(H, X, U):
     X = X.flatten()
     Y = U.flatten()
     h = H.flatten()
-    h_optimized = optimize(val, jac, X, Y, h)
+    h_optimized = optimize(val, X, Y, h, jac)
     H_optimized = h_optimized.reshape(3, 3) / h_optimized[8]
     return H_optimized
 
